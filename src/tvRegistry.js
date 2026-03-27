@@ -29,6 +29,36 @@ export class TvRegistry {
     return tv;
   }
 
+  upsert(tv) {
+    const existing = this.tvs.get(tv.id);
+    this.tvs.set(tv.id, { ...existing, ...tv });
+    return this.get(tv.id);
+  }
+
+  addManual(host, name = null) {
+    const normalizedHost = String(host || "").trim();
+    if (!normalizedHost) {
+      throw new Error("A TV IP address or hostname is required");
+    }
+    const id = `manual-${normalizedHost}`;
+    return this.upsert({
+      id,
+      ip: normalizedHost,
+      port: 3000,
+      securePort: 3001,
+      descriptionUrl: `http://${normalizedHost}:3000/`,
+      serviceTarget: "manual",
+      server: null,
+      name: name?.trim() || normalizedHost,
+      modelName: "Manual entry",
+      modelNumber: "Unknown",
+      manufacturer: "LG",
+      serialNumber: null,
+      lastSeenAt: new Date().toISOString(),
+      discoveryMode: "manual"
+    });
+  }
+
   client(id) {
     const tv = this.get(id);
     if (!this.clients.has(id)) {

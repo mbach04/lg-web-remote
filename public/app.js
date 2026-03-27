@@ -10,6 +10,10 @@ const elements = {
   tvCount: document.querySelector("#tv-count"),
   scanButton: document.querySelector("#scan-button"),
   refreshButton: document.querySelector("#refresh-button"),
+  statusLine: document.querySelector("#status-line"),
+  manualAddForm: document.querySelector("#manual-add-form"),
+  manualHost: document.querySelector("#manual-host"),
+  manualName: document.querySelector("#manual-name"),
   emptyState: document.querySelector("#empty-state"),
   tvDetail: document.querySelector("#tv-detail"),
   tvName: document.querySelector("#tv-name"),
@@ -56,6 +60,10 @@ function showToast(message, isError = false) {
   elements.toast.style.borderColor = isError ? "rgba(233, 122, 108, 0.5)" : "rgba(116, 211, 174, 0.4)";
   clearTimeout(showToast.timer);
   showToast.timer = setTimeout(() => elements.toast.classList.add("hidden"), 3200);
+}
+
+function setStatus(message) {
+  elements.statusLine.textContent = message;
 }
 
 function selectedTv() {
@@ -166,6 +174,7 @@ async function loadConfig() {
 
 async function scanTvs() {
   elements.scanButton.disabled = true;
+  setStatus("Scanning the local network for LG TVs...");
   try {
     state.tvs = await api("/api/discovery/scan", { method: "POST", body: "{}" });
     if (!state.selectedTvId && state.tvs[0]) {
@@ -173,8 +182,14 @@ async function scanTvs() {
     }
     renderTvList();
     await refreshDashboard();
+    setStatus(
+      state.tvs.length
+        ? `Discovery finished. Found ${state.tvs.length} TV${state.tvs.length === 1 ? "" : "s"}.`
+        : "Discovery finished, but no TVs replied. If you're using Podman, add a TV manually by IP to keep testing."
+    );
     showToast(`Discovered ${state.tvs.length} TV${state.tvs.length === 1 ? "" : "s"}`);
   } catch (error) {
+    setStatus(`Discovery failed: ${error.message}`);
     showToast(error.message, true);
   } finally {
     elements.scanButton.disabled = false;
@@ -185,12 +200,17 @@ async function refreshDashboard() {
   const tv = selectedTv();
   renderDashboard();
   if (!tv) {
+    setStatus("Select a TV first, or add one manually by IP.");
+    showToast("Select a TV first, or add one manually by IP.", true);
     return;
   }
+  setStatus(`Refreshing status from ${tv.name}...`);
   try {
     state.dashboard = await api(`/api/tvs/${tv.id}/dashboard`);
+    setStatus(`Connected to ${tv.name}.`);
   } catch (error) {
     state.dashboard = null;
+    setStatus(`Refresh failed for ${tv.name}: ${error.message}`);
     showToast(error.message, true);
   }
   renderDashboard();
@@ -203,9 +223,11 @@ async function connectSelectedTv() {
   }
   try {
     await api(`/api/tvs/${tv.id}/connect`, { method: "POST", body: "{}" });
+    setStatus(`Pairing with ${tv.name}. Check the TV screen for an approval prompt if needed.`);
     showToast(`Connected to ${tv.name}. Approve pairing on the TV if prompted.`);
     await refreshDashboard();
   } catch (error) {
+    setStatus(`Connection failed for ${tv.name}: ${error.message}`);
     showToast(error.message, true);
   }
 }
@@ -337,6 +359,30 @@ function bindReloadButtons() {
 }
 
 function bindForms() {
+  elements.manualAddForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      const tv = await api("/api/tvs/manual", {
+        method: "POST",
+        body: JSON.stringify({
+          host: elements.manualHost.value,
+          name: elements.manualName.value
+        })
+      });
+      state.tvs = await api("/api/tvs");
+      state.selectedTvId = tv.id;
+      renderTvList();
+      setStatus(`Added ${tv.name}. You can pair with it now.`);
+      showToast(`Added ${tv.name}`);
+      elements.manualHost.value = "";
+      elements.manualName.value = "";
+      await refreshDashboard();
+    } catch (error) {
+      setStatus(`Manual add failed: ${error.message}`);
+      showToast(error.message, true);
+    }
+  });
+
   elements.textForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const tv = selectedTv();
@@ -383,6 +429,7 @@ bindQuickActions();
 bindTouchpad();
 bindReloadButtons();
 bindForms();
+setStatus("Loading saved TV list...");
 
 state.tvs = await api("/api/tvs");
 if (state.tvs[0]) {

@@ -36,6 +36,8 @@ Build the image:
 docker compose build
 ```
 
+The built image tag will be `localhost/lg-tv-control-hub:latest`.
+
 Because SSDP discovery relies on multicast on the local network, host networking is the simplest option on Linux:
 
 ```bash
@@ -56,13 +58,13 @@ cd lg-tv-control-hub
 Podman works as well. On Linux, use host networking for the cleanest multicast discovery:
 
 ```bash
-podman build -t lg-tv-control-hub .
+podman build -t localhost/lg-tv-control-hub:latest .
 podman run --rm \
   --network host \
   -e PORT=8686 \
   -e DATA_DIR=/app/data \
   -v "$(pwd)/data:/app/data:Z" \
-  lg-tv-control-hub
+  localhost/lg-tv-control-hub:latest
 ```
 
 Then open [http://localhost:8686](http://localhost:8686).
@@ -86,7 +88,7 @@ cd lg-tv-control-hub
 Build the image:
 
 ```bash
-docker build -t lg-tv-control-hub .
+docker build -t localhost/lg-tv-control-hub:latest .
 ```
 
 ```bash
@@ -95,7 +97,7 @@ docker run --rm \
   -e PORT=8686 \
   -e DATA_DIR=/app/data \
   -v "$(pwd)/data:/app/data" \
-  lg-tv-control-hub
+  localhost/lg-tv-control-hub:latest
 ```
 
 ## Change the port
@@ -116,7 +118,7 @@ docker run --rm \
   -e PORT=9000 \
   -e DATA_DIR=/app/data \
   -v "$(pwd)/data:/app/data" \
-  lg-tv-control-hub
+  localhost/lg-tv-control-hub:latest
 ```
 
 With Podman:
@@ -127,7 +129,7 @@ podman run --rm \
   -e PORT=9000 \
   -e DATA_DIR=/app/data \
   -v "$(pwd)/data:/app/data:Z" \
-  lg-tv-control-hub
+  localhost/lg-tv-control-hub:latest
 ```
 
 ## Notes

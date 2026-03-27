@@ -99,6 +99,27 @@ select {
   border-radius: 28px;
 }
 
+.utility-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.2rem;
+}
+
+.status-line {
+  margin: 0.25rem 0 0;
+  color: #dce7ef;
+}
+
+.manual-add-form {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) minmax(180px, 220px) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
 .hero-actions,
 .detail-actions,
 .touchpad-actions {
@@ -302,6 +323,7 @@ select {
   background: rgba(9, 16, 24, 0.95);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
+  z-index: 50;
 }
 
 @media (max-width: 1100px) {
@@ -332,6 +354,7 @@ select {
   }
 
   .hero,
+  .utility-bar,
   .detail-panel,
   .sidebar,
   .inset {
@@ -339,11 +362,16 @@ select {
   }
 
   .hero,
+  .utility-bar,
   .detail-header,
   .panel-header,
   .section-header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .manual-add-form {
+    grid-template-columns: 1fr;
   }
 
   .hero {

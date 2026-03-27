@@ -75,7 +75,13 @@ app.get("/api/tvs", (_request, response) => {
 
 app.post("/api/discovery/scan", asyncHandler(async (_request, response) => {
   const tvs = await registry.scan();
+  console.log(`Discovery complete: found ${tvs.length} TV(s)`);
   response.json(tvs);
+}));
+
+app.post("/api/tvs/manual", asyncHandler(async (request, response) => {
+  const tv = registry.addManual(request.body.host, request.body.name);
+  response.json(tv);
 }));
 
 app.post("/api/tvs/:id/connect", asyncHandler(async (request, response) => {

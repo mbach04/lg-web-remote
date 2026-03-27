@@ -1,6 +1,7 @@
 services:
   lg-tv-control-hub:
     build: .
+    image: localhost/lg-tv-control-hub:latest
     container_name: lg-tv-control-hub
     network_mode: host
     environment:

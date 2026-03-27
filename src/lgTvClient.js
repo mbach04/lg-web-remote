@@ -279,8 +279,40 @@ export class LgTvClient extends EventEmitter {
   }
 
   async sendRemoteButton(name) {
+    const normalized = String(name || "").toUpperCase();
+    const directRequests = {
+      PLAY: { uri: "ssap://media.controls/play" },
+      PAUSE: { uri: "ssap://media.controls/pause" },
+      STOP: { uri: "ssap://media.controls/stop" },
+      REWIND: { uri: "ssap://media.controls/rewind" },
+      FASTFORWARD: { uri: "ssap://media.controls/fastForward" },
+      VOLUMEUP: { uri: "ssap://audio/volumeUp" },
+      VOLUMEDOWN: { uri: "ssap://audio/volumeDown" },
+      CHANNELUP: { uri: "ssap://tv/channelUp" },
+      CHANNELDOWN: { uri: "ssap://tv/channelDown" }
+    };
+
+    if (normalized === "MUTE") {
+      const volume = await this.request({ uri: "ssap://audio/getVolume" });
+      return this.request({
+        uri: "ssap://audio/setMute",
+        payload: { mute: !Boolean(volume?.payload?.muted) }
+      });
+    }
+
+    if (normalized === "ENTER") {
+      const pointer = await this.pointer();
+      pointer.send("type:click\n\n");
+      return;
+    }
+
+    const directRequest = directRequests[normalized];
+    if (directRequest) {
+      return this.request(directRequest);
+    }
+
     const pointer = await this.pointer();
-    pointer.send(`type:button\nname:${name}\n\n`);
+    pointer.send(`type:button\nname:${normalized}\n\n`);
   }
 
   async sendText(text, replace = true) {
