@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LG TV Control Hub</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Home Control</p>
+          <h1>LG TV Control Hub</h1>
+          <p class="subtitle">
+            Discover every LG webOS TV on your network, pair once, and control the full SSAP API from one place.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button id="scan-button" class="primary">Scan for TVs</button>
+          <button id="refresh-button">Refresh Selected TV</button>
+        </div>
+      </section>
+
+      <section class="layout">
+        <aside class="panel sidebar">
+          <div class="panel-header">
+            <h2>Discovered TVs</h2>
+            <span id="tv-count" class="count">0</span>
+          </div>
+          <div id="tv-list" class="tv-list"></div>
+        </aside>
+
+        <section class="content">
+          <div class="panel detail-panel">
+            <div id="empty-state" class="empty-state">
+              <h2>No TV selected</h2>
+              <p>Run discovery, then choose a TV to connect and control it.</p>
+            </div>
+
+            <div id="tv-detail" class="hidden">
+              <div class="detail-header">
+                <div>
+                  <p id="tv-model" class="eyebrow"></p>
+                  <h2 id="tv-name"></h2>
+                  <p id="tv-meta" class="meta"></p>
+                </div>
+                <div class="detail-actions">
+                  <button id="connect-button" class="primary">Pair / Connect</button>
+                  <button id="power-button" class="danger">Power Off</button>
+                </div>
+              </div>
+
+              <div class="dashboard-grid">
+                <div class="stat-card">
+                  <p class="label">Foreground App</p>
+                  <p id="foreground-app" class="value">-</p>
+                </div>
+                <div class="stat-card">
+                  <p class="label">Volume</p>
+                  <p id="volume" class="value">-</p>
+                </div>
+                <div class="stat-card">
+                  <p class="label">Current Channel</p>
+                  <p id="channel" class="value">-</p>
+                </div>
+                <div class="stat-card">
+                  <p class="label">Connection</p>
+                  <p id="connection" class="value">-</p>
+                </div>
+              </div>
+
+              <div class="controls-grid">
+                <section class="panel inset">
+                  <h3>Remote</h3>
+                  <div id="remote-buttons" class="button-grid"></div>
+                </section>
+
+                <section class="panel inset">
+                  <h3>Touchpad</h3>
+                  <div id="touchpad" class="touchpad">
+                    <span>Drag to move pointer</span>
+                  </div>
+                  <div class="touchpad-actions">
+                    <button data-scroll="-120" class="scroll-button">Scroll Up</button>
+                    <button data-scroll="120" class="scroll-button">Scroll Down</button>
+                  </div>
+                </section>
+
+                <section class="panel inset">
+                  <h3>Quick Actions</h3>
+                  <div class="quick-actions">
+                    <button data-action="volume-up">Volume +</button>
+                    <button data-action="volume-down">Volume -</button>
+                    <button data-action="mute">Mute</button>
+                    <button data-action="channel-up">Channel +</button>
+                    <button data-action="channel-down">Channel -</button>
+                    <button data-action="home">Home</button>
+                    <button data-action="back">Back</button>
+                    <button data-action="toast">Toast</button>
+                  </div>
+                </section>
+
+                <section class="panel inset">
+                  <h3>Text Input</h3>
+                  <form id="text-form" class="stack">
+                    <textarea id="text-input" rows="4" placeholder="Send text to the focused field on the TV"></textarea>
+                    <button class="primary" type="submit">Send Text</button>
+                  </form>
+                </section>
+              </div>
+
+              <div class="data-grid">
+                <section class="panel inset">
+                  <div class="section-header">
+                    <h3>Apps</h3>
+                    <button data-fetch="apps">Reload</button>
+                  </div>
+                  <div id="apps-list" class="data-list"></div>
+                </section>
+
+                <section class="panel inset">
+                  <div class="section-header">
+                    <h3>Inputs</h3>
+                    <button data-fetch="inputs">Reload</button>
+                  </div>
+                  <div id="inputs-list" class="data-list"></div>
+                </section>
+
+                <section class="panel inset">
+                  <div class="section-header">
+                    <h3>Channels</h3>
+                    <button data-fetch="channels">Reload</button>
+                  </div>
+                  <div id="channels-list" class="data-list"></div>
+                </section>
+
+                <section class="panel inset api-panel">
+                  <h3>Raw API Explorer</h3>
+                  <form id="api-form" class="stack">
+                    <label>
+                      URI
+                      <input id="api-uri" type="text" value="ssap://audio/getVolume" />
+                    </label>
+                    <label>
+                      Type
+                      <select id="api-type">
+                        <option value="request">request</option>
+                        <option value="subscribe">subscribe</option>
+                      </select>
+                    </label>
+                    <label>
+                      Payload JSON
+                      <textarea id="api-payload" rows="6">{}</textarea>
+                    </label>
+                    <button class="primary" type="submit">Send Request</button>
+                  </form>
+                  <pre id="api-response" class="response-box"></pre>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <div id="toast" class="toast hidden"></div>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

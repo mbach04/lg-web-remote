@@ -1,0 +1,12 @@
+services:
+  lg-tv-control-hub:
+    build: .
+    container_name: lg-tv-control-hub
+    network_mode: host
+    environment:
+      PORT: 8080
+      DATA_DIR: /app/data
+      DISCOVERY_TIMEOUT_MS: 3500
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
