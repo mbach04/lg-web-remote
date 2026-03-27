@@ -23,6 +23,19 @@ LG TVs expose a broad SSAP API surface and that varies a bit by model and softwa
 
 ## Run with Docker Compose
 
+Clone the repository and enter it first:
+
+```bash
+git clone <your-repo-url> lg-tv-control-hub
+cd lg-tv-control-hub
+```
+
+Build the image:
+
+```bash
+docker compose build
+```
+
 Because SSDP discovery relies on multicast on the local network, host networking is the simplest option on Linux:
 
 ```bash
@@ -32,6 +45,13 @@ docker compose up --build
 Then open [http://localhost:8686](http://localhost:8686).
 
 ## Run with Podman
+
+Clone the repository and enter it first:
+
+```bash
+git clone <your-repo-url> lg-tv-control-hub
+cd lg-tv-control-hub
+```
 
 Podman works as well. On Linux, use host networking for the cleanest multicast discovery:
 
@@ -50,13 +70,26 @@ Then open [http://localhost:8686](http://localhost:8686).
 If you prefer Compose-style workflows with Podman:
 
 ```bash
+podman-compose build
 podman-compose up --build
 ```
 
 ## Run with plain Docker
 
+Clone the repository and enter it first:
+
+```bash
+git clone <your-repo-url> lg-tv-control-hub
+cd lg-tv-control-hub
+```
+
+Build the image:
+
 ```bash
 docker build -t lg-tv-control-hub .
+```
+
+```bash
 docker run --rm \
   --network host \
   -e PORT=8686 \
