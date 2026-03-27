@@ -143,6 +143,12 @@ export class LgTvClient extends EventEmitter {
     this.store.write(keys);
   }
 
+  clearClientKey() {
+    const keys = this.clientKeys;
+    delete keys[this.tv.id];
+    this.store.write(keys);
+  }
+
   async connect() {
     if (this.socket?.readyState === WebSocket.OPEN) {
       return this;
@@ -161,10 +167,32 @@ export class LgTvClient extends EventEmitter {
 
   async #connectWithFallback() {
     try {
-      await this.#openSocket(false);
-    } catch (error) {
       await this.#openSocket(true);
+    } catch (error) {
+      await this.#openSocket(false);
     }
+  }
+
+  resetConnection({ clearKey = false } = {}) {
+    if (clearKey) {
+      this.clearClientKey();
+    }
+
+    for (const [id, pending] of this.pending.entries()) {
+      pending.reject(new Error(`Connection reset before completing ${id}`));
+    }
+    this.pending.clear();
+
+    this.pointerSocket?.terminate();
+    this.pointerSocket = null;
+    this.pointerReady = null;
+
+    this.socket?.terminate();
+    this.socket = null;
+    this.connecting = null;
+    this.registrationReady = null;
+    this.status = "disconnected";
+    this.emit("status", this.status);
   }
 
   async #openSocket(secure) {
@@ -197,6 +225,10 @@ export class LgTvClient extends EventEmitter {
     socket.on("error", (error) => this.#handleSocketError(error));
 
     this.socket = socket;
+
+    // Some recent LG firmware versions behave more reliably if system info
+    // is requested before registration starts.
+    await this.#primeSystemInfo().catch(() => {});
 
     const registerPayload = structuredClone(REGISTER_PAYLOAD);
     if (this.clientKey) {
@@ -274,6 +306,16 @@ export class LgTvClient extends EventEmitter {
     });
   }
 
+  async #primeSystemInfo() {
+    return this.#sendInternal(
+      {
+        type: "request",
+        uri: "ssap://system/getSystemInfo"
+      },
+      DEFAULT_TIMEOUT_MS
+    );
+  }
+
   #waitForRegistration(timeoutMs = REGISTER_TIMEOUT_MS) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -326,8 +368,17 @@ export class LgTvClient extends EventEmitter {
   }
 
   async request({ uri, payload = {}, type = "request", timeoutMs = DEFAULT_TIMEOUT_MS }) {
-    await this.connect();
-    return this.#sendInternal({ type, uri, payload }, timeoutMs);
+    try {
+      await this.connect();
+      return await this.#sendInternal({ type, uri, payload }, timeoutMs);
+    } catch (error) {
+      if (this.#isRegistrationError(error)) {
+        this.resetConnection({ clearKey: true });
+        await this.connect();
+        return this.#sendInternal({ type, uri, payload }, timeoutMs);
+      }
+      throw error;
+    }
   }
 
   async button(name) {
@@ -463,5 +514,10 @@ export class LgTvClient extends EventEmitter {
     );
 
     return Object.fromEntries(entries);
+  }
+
+  #isRegistrationError(error) {
+    const message = String(error?.message || "").toLowerCase();
+    return message.includes("not registered") || message.includes("insufficient permissions");
   }
 }
