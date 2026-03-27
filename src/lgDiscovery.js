@@ -1,10 +1,18 @@
 import dgram from "node:dgram";
+import os from "node:os";
 import { XMLParser } from "fast-xml-parser";
 
 const DISCOVERY_TARGET = "urn:lge-com:service:webos-second-screen:1";
 const SSDP_HOST = "239.255.255.250";
 const SSDP_PORT = 1900;
 const REQUEST_TIMEOUT_MS = Number(process.env.DISCOVERY_TIMEOUT_MS || 3500);
+const ACTIVE_SCAN_TIMEOUT_MS = Number(process.env.ACTIVE_SCAN_TIMEOUT_MS || 450);
+const ACTIVE_SCAN_CONCURRENCY = Number(process.env.ACTIVE_SCAN_CONCURRENCY || 24);
+const ACTIVE_SCAN_DESCRIPTION_PATHS = [
+  "/ssdp/device-desc.xml",
+  "/description.xml",
+  "/"
+];
 const SEARCH_TARGETS = [
   DISCOVERY_TARGET,
   "upnp:rootdevice",
@@ -73,6 +81,40 @@ function normalizeTvRecord(headers, description) {
   };
 }
 
+function looksLikeLgTv(headers, description) {
+  const location = headers.location || "";
+  const server = headers.server || "";
+  const serviceTarget = headers.st || "";
+  const usn = headers.usn || "";
+  const text = [
+    location,
+    server,
+    serviceTarget,
+    usn,
+    description.manufacturer,
+    description.modelName,
+    description.friendlyName
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (text.includes("webos") || text.includes("lge") || text.includes("lg smart tv")) {
+    return true;
+  }
+
+  try {
+    const url = new URL(location);
+    if (url.port === "3000" || url.port === "3001") {
+      return true;
+    }
+  } catch (_error) {
+    return false;
+  }
+
+  return false;
+}
+
 function buildSearchRequest(target) {
   return [
     "M-SEARCH * HTTP/1.1",
@@ -83,6 +125,101 @@ function buildSearchRequest(target) {
     "",
     ""
   ].join("\r\n");
+}
+
+function privateIpv4Bases() {
+  const interfaces = os.networkInterfaces();
+  const bases = new Set();
+
+  for (const addresses of Object.values(interfaces)) {
+    for (const address of addresses || []) {
+      if (address.family !== "IPv4" || address.internal) {
+        continue;
+      }
+      const octets = address.address.split(".");
+      if (octets.length !== 4) {
+        continue;
+      }
+      bases.add(`${octets[0]}.${octets[1]}.${octets[2]}`);
+    }
+  }
+
+  return [...bases];
+}
+
+async function fetchDescriptionFromHost(host) {
+  for (const path of ACTIVE_SCAN_DESCRIPTION_PATHS) {
+    try {
+      const response = await fetch(`http://${host}:3000${path}`, {
+        signal: AbortSignal.timeout(ACTIVE_SCAN_TIMEOUT_MS)
+      });
+      if (!response.ok) {
+        continue;
+      }
+      const body = await response.text();
+      const parsed = xmlParser.parse(body);
+      const device = parsed?.root?.device ?? {};
+      if (!device?.modelName && !device?.friendlyName && !device?.manufacturer) {
+        continue;
+      }
+      return {
+        friendlyName: device.friendlyName,
+        manufacturer: device.manufacturer,
+        modelName: device.modelName,
+        modelNumber: device.modelNumber,
+        serialNumber: device.serialNumber,
+        udn: device.UDN,
+        location: `http://${host}:3000${path}`
+      };
+    } catch (_error) {
+      continue;
+    }
+  }
+
+  return null;
+}
+
+async function activeSubnetScan() {
+  const results = [];
+  const bases = privateIpv4Bases();
+  const candidates = [];
+
+  for (const base of bases) {
+    for (let suffix = 1; suffix <= 254; suffix += 1) {
+      candidates.push(`${base}.${suffix}`);
+    }
+  }
+
+  let cursor = 0;
+  async function worker() {
+    while (cursor < candidates.length) {
+      const host = candidates[cursor];
+      cursor += 1;
+      const description = await fetchDescriptionFromHost(host);
+      if (!description) {
+        continue;
+      }
+      const headers = {
+        location: description.location,
+        usn: description.udn || host,
+        st: DISCOVERY_TARGET,
+        server: "active-scan"
+      };
+      if (looksLikeLgTv(headers, description)) {
+        results.push(normalizeTvRecord(headers, description));
+      }
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.max(1, ACTIVE_SCAN_CONCURRENCY) }, () => worker())
+  );
+
+  const deduped = new Map();
+  for (const tv of results) {
+    deduped.set(tv.ip, tv);
+  }
+  return [...deduped.values()];
 }
 
 export async function discoverTvs(timeoutMs = REQUEST_TIMEOUT_MS) {
@@ -117,14 +254,18 @@ export async function discoverTvs(timeoutMs = REQUEST_TIMEOUT_MS) {
   const tvs = await Promise.all(
     [...discovered.values()].map(async (headers) => {
       const description = await fetchDescription(headers.location);
+      if (!looksLikeLgTv(headers, description)) {
+        return null;
+      }
       return normalizeTvRecord(headers, description);
     })
   );
 
-  return tvs
-    .filter((tv) => {
-      const text = `${tv.serviceTarget} ${tv.server} ${tv.manufacturer} ${tv.modelName} ${tv.name}`.toLowerCase();
-      return text.includes("lge") || text.includes("lg") || text.includes("webos");
-    })
-    .sort((left, right) => left.name.localeCompare(right.name));
+  const passiveResults = tvs.filter(Boolean);
+  if (passiveResults.length > 0) {
+    return passiveResults.sort((left, right) => left.name.localeCompare(right.name));
+  }
+
+  const activeResults = await activeSubnetScan();
+  return activeResults.sort((left, right) => left.name.localeCompare(right.name));
 }

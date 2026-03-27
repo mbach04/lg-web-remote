@@ -375,9 +375,18 @@ export class LgTvClient extends EventEmitter {
       return await this.#sendInternal({ type, uri, payload }, timeoutMs);
     } catch (error) {
       if (this.#isRegistrationError(error)) {
-        this.resetConnection({ clearKey: true });
-        await this.connect();
-        return this.#sendInternal({ type, uri, payload }, timeoutMs);
+        this.resetConnection({ clearKey: false });
+        try {
+          await this.connect();
+          return await this.#sendInternal({ type, uri, payload }, timeoutMs);
+        } catch (retryError) {
+          if (this.#isRegistrationError(retryError)) {
+            this.resetConnection({ clearKey: true });
+            await this.connect();
+            return this.#sendInternal({ type, uri, payload }, timeoutMs);
+          }
+          throw retryError;
+        }
       }
       throw error;
     }
@@ -393,6 +402,7 @@ export class LgTvClient extends EventEmitter {
   async sendRemoteButton(name) {
     const normalized = String(name || "").toUpperCase();
     const directRequests = {
+      HOME: { uri: "ssap://system.launcher/open", payload: { target: "home" } },
       PLAY: { uri: "ssap://media.controls/play" },
       PAUSE: { uri: "ssap://media.controls/pause" },
       STOP: { uri: "ssap://media.controls/stop" },
@@ -420,7 +430,10 @@ export class LgTvClient extends EventEmitter {
 
     const directRequest = directRequests[normalized];
     if (directRequest) {
-      return this.request(directRequest);
+      return this.request({
+        uri: directRequest.uri,
+        payload: directRequest.payload || {}
+      });
     }
 
     const pointer = await this.pointer();
