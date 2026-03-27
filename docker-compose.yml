@@ -4,7 +4,7 @@ services:
     container_name: lg-tv-control-hub
     network_mode: host
     environment:
-      PORT: 8080
+      PORT: 8686
       DATA_DIR: /app/data
       DISCOVERY_TIMEOUT_MS: 3500
     volumes:

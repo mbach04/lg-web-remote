@@ -6,7 +6,7 @@ import { TvRegistry } from "./tvRegistry.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const port = Number(process.env.PORT || 8080);
+const port = Number(process.env.PORT || 8686);
 const store = new JsonStore("client-keys.json");
 const registry = new TvRegistry(store);
 

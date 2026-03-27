@@ -8,10 +8,10 @@ RUN npm install --omit=dev
 COPY public ./public
 COPY src ./src
 
-ENV PORT=8080
+ENV PORT=8686
 ENV DATA_DIR=/app/data
 
 VOLUME ["/app/data"]
-EXPOSE 8080
+EXPOSE 8686
 
 CMD ["npm", "start"]

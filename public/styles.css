@@ -28,6 +28,12 @@ body {
     linear-gradient(180deg, #091018, #10141a 30%, #141b24 100%);
 }
 
+.app-shell {
+  width: min(1440px, calc(100vw - 2rem));
+  margin: 0 auto;
+  padding: max(1rem, env(safe-area-inset-top)) 0 max(2rem, env(safe-area-inset-bottom));
+}
+
 button,
 input,
 textarea,
@@ -73,12 +79,6 @@ select {
   padding: 0.8rem 0.9rem;
   background: rgba(3, 8, 14, 0.5);
   color: var(--text);
-}
-
-.app-shell {
-  width: min(1440px, calc(100vw - 2rem));
-  margin: 0 auto;
-  padding: 2rem 0 3rem;
 }
 
 .hero,
@@ -315,5 +315,104 @@ select {
   .sidebar {
     position: static;
     height: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  body {
+    background:
+      radial-gradient(circle at top left, rgba(116, 211, 174, 0.12), transparent 34%),
+      linear-gradient(180deg, #091018, #111821 40%, #151d27 100%);
+  }
+
+  .app-shell {
+    width: min(100vw - 1rem, 100%);
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .hero,
+  .detail-panel,
+  .sidebar,
+  .inset {
+    border-radius: 20px;
+  }
+
+  .hero,
+  .detail-header,
+  .panel-header,
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero {
+    padding: 1.1rem;
+  }
+
+  .hero-actions,
+  .detail-actions,
+  .touchpad-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .button-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  button,
+  .button {
+    min-height: 48px;
+  }
+
+  .touchpad {
+    min-height: 150px;
+  }
+
+  .data-list {
+    max-height: none;
+  }
+
+  .data-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .response-box {
+    min-height: 180px;
+    font-size: 0.86rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-shell {
+    width: calc(100vw - 0.75rem);
+  }
+
+  .hero-actions,
+  .detail-actions,
+  .touchpad-actions,
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .button-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tv-card,
+  .stat-card,
+  .inset {
+    padding: 0.9rem;
+  }
+
+  .subtitle,
+  .meta {
+    word-break: break-word;
   }
 }

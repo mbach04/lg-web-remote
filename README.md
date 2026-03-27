@@ -29,7 +29,29 @@ Because SSDP discovery relies on multicast on the local network, host networking
 docker compose up --build
 ```
 
-Then open [http://localhost:8080](http://localhost:8080).
+Then open [http://localhost:8686](http://localhost:8686).
+
+## Run with Podman
+
+Podman works as well. On Linux, use host networking for the cleanest multicast discovery:
+
+```bash
+podman build -t lg-tv-control-hub .
+podman run --rm \
+  --network host \
+  -e PORT=8686 \
+  -e DATA_DIR=/app/data \
+  -v "$(pwd)/data:/app/data:Z" \
+  lg-tv-control-hub
+```
+
+Then open [http://localhost:8686](http://localhost:8686).
+
+If you prefer Compose-style workflows with Podman:
+
+```bash
+podman-compose up --build
+```
 
 ## Run with plain Docker
 
@@ -37,9 +59,41 @@ Then open [http://localhost:8080](http://localhost:8080).
 docker build -t lg-tv-control-hub .
 docker run --rm \
   --network host \
-  -e PORT=8080 \
+  -e PORT=8686 \
   -e DATA_DIR=/app/data \
   -v "$(pwd)/data:/app/data" \
+  lg-tv-control-hub
+```
+
+## Change the port
+
+The app now defaults to port `8686`. To use another port, set the `PORT` environment variable.
+
+With Docker Compose:
+
+```bash
+PORT=9000 docker compose up --build
+```
+
+With Docker:
+
+```bash
+docker run --rm \
+  --network host \
+  -e PORT=9000 \
+  -e DATA_DIR=/app/data \
+  -v "$(pwd)/data:/app/data" \
+  lg-tv-control-hub
+```
+
+With Podman:
+
+```bash
+podman run --rm \
+  --network host \
+  -e PORT=9000 \
+  -e DATA_DIR=/app/data \
+  -v "$(pwd)/data:/app/data:Z" \
   lg-tv-control-hub
 ```
 
@@ -49,3 +103,4 @@ docker run --rm \
 - Pairing keys are stored in [`data/client-keys.json`](/Users/matthewbach/Documents/Playground/data/client-keys.json) inside the mounted data volume.
 - Some SSAP endpoints are model-specific. If a command is unsupported, use the raw API explorer to inspect the error response and adjust the payload for that TV.
 - `network_mode: host` works best on Linux. Docker Desktop on macOS often does not forward multicast discovery cleanly into containers, so local discovery may be limited there unless you run the app directly on the host.
+- The web UI is responsive and tuned for mobile browsers, including larger touch targets and single-column layouts on narrow screens.
