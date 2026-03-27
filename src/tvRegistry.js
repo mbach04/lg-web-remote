@@ -11,8 +11,20 @@ export class TvRegistry {
   async scan() {
     const discovered = await discoverTvs();
     for (const tv of discovered) {
-      const existing = this.tvs.get(tv.id);
-      this.tvs.set(tv.id, { ...existing, ...tv });
+      const existingById = this.tvs.get(tv.id);
+      const existingByIp = this.#findByIp(tv.ip);
+      const existing = existingById || existingByIp;
+      this.tvs.set(tv.id, { ...existing, ...tv, discoveryMode: "auto" });
+
+      if (existingByIp && existingByIp.id !== tv.id) {
+        this.tvs.delete(existingByIp.id);
+        const existingClient = this.clients.get(existingByIp.id);
+        if (existingClient) {
+          existingClient.tv = this.tvs.get(tv.id);
+          this.clients.set(tv.id, existingClient);
+          this.clients.delete(existingByIp.id);
+        }
+      }
     }
     return this.list();
   }
@@ -63,7 +75,13 @@ export class TvRegistry {
     const tv = this.get(id);
     if (!this.clients.has(id)) {
       this.clients.set(id, new LgTvClient(tv, this.store));
+    } else {
+      this.clients.get(id).tv = tv;
     }
     return this.clients.get(id);
+  }
+
+  #findByIp(ip) {
+    return [...this.tvs.values()].find((tv) => tv.ip === ip) || null;
   }
 }

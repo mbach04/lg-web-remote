@@ -177,6 +177,9 @@ async function scanTvs() {
   setStatus("Scanning the local network for LG TVs...");
   try {
     state.tvs = await api("/api/discovery/scan", { method: "POST", body: "{}" });
+    if (!state.tvs.some((tv) => tv.id === state.selectedTvId)) {
+      state.selectedTvId = null;
+    }
     if (!state.selectedTvId && state.tvs[0]) {
       state.selectedTvId = state.tvs[0].id;
     }
@@ -184,7 +187,7 @@ async function scanTvs() {
     await refreshDashboard();
     setStatus(
       state.tvs.length
-        ? `Discovery finished. Found ${state.tvs.length} TV${state.tvs.length === 1 ? "" : "s"}.`
+        ? `Discovery finished. Found ${state.tvs.length} TV${state.tvs.length === 1 ? "" : "s"}: ${state.tvs.map((tv) => tv.name).join(", ")}.`
         : "Discovery finished, but no TVs replied. If you're using Podman, add a TV manually by IP to keep testing."
     );
     showToast(`Discovered ${state.tvs.length} TV${state.tvs.length === 1 ? "" : "s"}`);

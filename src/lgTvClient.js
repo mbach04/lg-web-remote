@@ -134,18 +134,20 @@ export class LgTvClient extends EventEmitter {
   }
 
   get clientKey() {
-    return this.clientKeys[this.tv.id] || null;
+    return this.clientKeys[this.tv.id] || this.clientKeys[this.#ipKey()] || null;
   }
 
   saveClientKey(value) {
     const keys = this.clientKeys;
     keys[this.tv.id] = value;
+    keys[this.#ipKey()] = value;
     this.store.write(keys);
   }
 
   clearClientKey() {
     const keys = this.clientKeys;
     delete keys[this.tv.id];
+    delete keys[this.#ipKey()];
     this.store.write(keys);
   }
 
@@ -519,5 +521,9 @@ export class LgTvClient extends EventEmitter {
   #isRegistrationError(error) {
     const message = String(error?.message || "").toLowerCase();
     return message.includes("not registered") || message.includes("insufficient permissions");
+  }
+
+  #ipKey() {
+    return `ip:${this.tv.ip}`;
   }
 }
