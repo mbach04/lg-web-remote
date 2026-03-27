@@ -26,7 +26,7 @@ LG TVs expose a broad SSAP API surface and that varies a bit by model and softwa
 Clone the repository and enter it first:
 
 ```bash
-git clone <your-repo-url> lg-tv-control-hub
+git clone https://github.com/mbach04/lg-web-remote.git lg-tv-control-hub
 cd lg-tv-control-hub
 ```
 
@@ -49,7 +49,7 @@ Then open [http://localhost:8686](http://localhost:8686).
 Clone the repository and enter it first:
 
 ```bash
-git clone <your-repo-url> lg-tv-control-hub
+git clone https://github.com/mbach04/lg-web-remote.git lg-tv-control-hub
 cd lg-tv-control-hub
 ```
 
@@ -79,7 +79,7 @@ podman-compose up --build
 Clone the repository and enter it first:
 
 ```bash
-git clone <your-repo-url> lg-tv-control-hub
+git clone https://github.com/mbach04/lg-web-remote.git lg-tv-control-hub
 cd lg-tv-control-hub
 ```
 
