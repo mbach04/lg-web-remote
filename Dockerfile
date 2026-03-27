@@ -14,4 +14,4 @@ ENV DATA_DIR=/app/data
 VOLUME ["/app/data"]
 EXPOSE 8686
 
-CMD ["npm", "start"]
+CMD ["node", "src/server.js"]

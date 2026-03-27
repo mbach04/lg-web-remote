@@ -139,6 +139,26 @@ app.use((error, _request, response, _next) => {
 
 await registry.scan().catch(() => []);
 
-app.listen(port, "0.0.0.0", () => {
+const server = app.listen(port, "0.0.0.0", () => {
   console.log(`LG TV Control Hub listening on http://0.0.0.0:${port}`);
 });
+
+function shutdown(signal) {
+  console.log(`Received ${signal}, shutting down...`);
+  server.close((error) => {
+    if (error) {
+      console.error("Error while shutting down the server:", error);
+      process.exit(1);
+      return;
+    }
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    console.error("Forced shutdown after timeout");
+    process.exit(1);
+  }, 5000).unref();
+}
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));

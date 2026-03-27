@@ -46,6 +46,8 @@ docker compose up --build
 
 Then open [http://localhost:8686](http://localhost:8686).
 
+Stop it with `Ctrl+C`.
+
 ## Run with Podman
 
 Clone the repository and enter it first:
@@ -68,6 +70,8 @@ podman run --rm \
 ```
 
 Then open [http://localhost:8686](http://localhost:8686).
+
+Stop it with `Ctrl+C`.
 
 If you prefer Compose-style workflows with Podman:
 
@@ -99,6 +103,8 @@ docker run --rm \
   -v "$(pwd)/data:/app/data" \
   localhost/lg-tv-control-hub:latest
 ```
+
+Stop it with `Ctrl+C`.
 
 ## Change the port
 
