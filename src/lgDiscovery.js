@@ -5,6 +5,11 @@ const DISCOVERY_TARGET = "urn:lge-com:service:webos-second-screen:1";
 const SSDP_HOST = "239.255.255.250";
 const SSDP_PORT = 1900;
 const REQUEST_TIMEOUT_MS = Number(process.env.DISCOVERY_TIMEOUT_MS || 3500);
+const SEARCH_TARGETS = [
+  DISCOVERY_TARGET,
+  "upnp:rootdevice",
+  "ssdp:all"
+];
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
   trimValues: true
@@ -68,6 +73,18 @@ function normalizeTvRecord(headers, description) {
   };
 }
 
+function buildSearchRequest(target) {
+  return [
+    "M-SEARCH * HTTP/1.1",
+    `HOST: ${SSDP_HOST}:${SSDP_PORT}`,
+    'MAN: "ssdp:discover"',
+    "MX: 3",
+    `ST: ${target}`,
+    "",
+    ""
+  ].join("\r\n");
+}
+
 export async function discoverTvs(timeoutMs = REQUEST_TIMEOUT_MS) {
   const socket = dgram.createSocket({ type: "udp4", reuseAddr: true });
   const discovered = new Map();
@@ -89,17 +106,10 @@ export async function discoverTvs(timeoutMs = REQUEST_TIMEOUT_MS) {
     discovered.set(headers.location, headers);
   });
 
-  const searchRequest = [
-    "M-SEARCH * HTTP/1.1",
-    `HOST: ${SSDP_HOST}:${SSDP_PORT}`,
-    'MAN: "ssdp:discover"',
-    "MX: 3",
-    `ST: ${DISCOVERY_TARGET}`,
-    "",
-    ""
-  ].join("\r\n");
-
-  socket.send(Buffer.from(searchRequest), SSDP_PORT, SSDP_HOST);
+  for (const target of SEARCH_TARGETS) {
+    const searchRequest = buildSearchRequest(target);
+    socket.send(Buffer.from(searchRequest), SSDP_PORT, SSDP_HOST);
+  }
 
   await new Promise((resolve) => setTimeout(resolve, timeoutMs));
   socket.close();
@@ -111,6 +121,10 @@ export async function discoverTvs(timeoutMs = REQUEST_TIMEOUT_MS) {
     })
   );
 
-  tvs.sort((left, right) => left.name.localeCompare(right.name));
-  return tvs;
+  return tvs
+    .filter((tv) => {
+      const text = `${tv.serviceTarget} ${tv.server} ${tv.manufacturer} ${tv.modelName} ${tv.name}`.toLowerCase();
+      return text.includes("lge") || text.includes("lg") || text.includes("webos");
+    })
+    .sort((left, right) => left.name.localeCompare(right.name));
 }

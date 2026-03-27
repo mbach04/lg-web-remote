@@ -5,9 +5,42 @@ const REGISTER_PAYLOAD = {
   type: "register",
   payload: {
     forcePairing: false,
+    pairingType: "PROMPT",
     manifest: {
-      appVersion: "1.0.0",
       manifestVersion: 1,
+      appVersion: "1.1",
+      signed: {
+        created: "20140509",
+        appId: "com.lge.test",
+        vendorId: "com.lge",
+        localizedAppNames: {
+          "": "LG Remote App",
+          "ko-KR": "리모컨 앱",
+          "zxx-XX": "LG Remote App"
+        },
+        localizedVendorNames: {
+          "": "LG Electronics"
+        },
+        permissions: [
+          "TEST_SECURE",
+          "CONTROL_INPUT_TEXT",
+          "CONTROL_MOUSE_AND_KEYBOARD",
+          "READ_INSTALLED_APPS",
+          "READ_LGE_SDX",
+          "READ_NOTIFICATIONS",
+          "SEARCH",
+          "WRITE_SETTINGS",
+          "WRITE_NOTIFICATION_ALERT",
+          "CONTROL_POWER",
+          "READ_CURRENT_CHANNEL",
+          "READ_RUNNING_APPS",
+          "READ_UPDATE_INFO",
+          "UPDATE_FROM_REMOTE_APP",
+          "READ_LGE_TV_INPUT_EVENTS",
+          "READ_TV_CURRENT_TIME"
+        ],
+        serial: "2f930e2d2cfe083771f68e4fe7bb07"
+      },
       permissions: [
         "LAUNCH",
         "LAUNCH_WEBAPP",
@@ -18,86 +51,63 @@ const REGISTER_PAYLOAD = {
         "CONTROL_AUDIO",
         "CONTROL_DISPLAY",
         "CONTROL_INPUT_JOYSTICK",
-        "CONTROL_INPUT_MEDIA_PLAYBACK",
         "CONTROL_INPUT_MEDIA_RECORDING",
+        "CONTROL_INPUT_MEDIA_PLAYBACK",
         "CONTROL_INPUT_TV",
-        "CONTROL_MOUSE_AND_KEYBOARD",
         "CONTROL_POWER",
+        "READ_APP_STATUS",
+        "READ_CURRENT_CHANNEL",
+        "READ_INPUT_DEVICE_LIST",
+        "READ_NETWORK_STATE",
+        "READ_RUNNING_APPS",
+        "READ_TV_CHANNEL_LIST",
+        "WRITE_NOTIFICATION_TOAST",
+        "READ_POWER_STATE",
+        "READ_COUNTRY_INFO",
+        "READ_SETTINGS",
         "CONTROL_TV_SCREEN",
         "CONTROL_TV_STANBY",
         "CONTROL_FAVORITE_GROUP",
         "CONTROL_USER_INFO",
-        "READ_APP_STATUS",
-        "READ_CURRENT_CHANNEL",
-        "READ_INPUT_DEVICE_LIST",
-        "READ_INSTALLED_APPS",
-        "READ_LGE_SDX",
-        "READ_NETWORK_STATE",
-        "READ_RUNNING_APPS",
-        "READ_TV_CHANNEL_LIST",
-        "READ_TV_CURRENT_TIME",
+        "CHECK_BLUETOOTH_DEVICE",
+        "CONTROL_BLUETOOTH",
+        "CONTROL_TIMER_INFO",
+        "STB_INTERNAL_CONNECTION",
+        "CONTROL_RECORDING",
+        "READ_RECORDING_STATE",
+        "WRITE_RECORDING_LIST",
+        "READ_RECORDING_LIST",
+        "READ_RECORDING_SCHEDULE",
+        "WRITE_RECORDING_SCHEDULE",
+        "READ_STORAGE_DEVICE_LIST",
         "READ_TV_PROGRAM_INFO",
-        "READ_TV_SCHEDULE",
-        "READ_UPDATE_INFO",
-        "UPDATE_FROM_REMOTE_APP",
-        "WRITE_NOTIFICATION_ALERT",
-        "WRITE_SETTINGS"
+        "CONTROL_BOX_CHANNEL",
+        "READ_TV_ACR_AUTH_TOKEN",
+        "READ_TV_CONTENT_STATE",
+        "READ_TV_CURRENT_TIME",
+        "ADD_LAUNCHER_CHANNEL",
+        "SET_CHANNEL_SKIP",
+        "RELEASE_CHANNEL_SKIP",
+        "CONTROL_CHANNEL_BLOCK",
+        "DELETE_SELECT_CHANNEL",
+        "CONTROL_CHANNEL_GROUP",
+        "SCAN_TV_CHANNELS",
+        "CONTROL_TV_POWER",
+        "CONTROL_WOL"
       ],
       signatures: [
         {
           signatureVersion: 1,
           signature:
-            "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.LG5vbmU.LG5vbmU"
+            "eyJhbGdvcml0aG0iOiJSU0EtU0hBMjU2Iiwia2V5SWQiOiJ0ZXN0LXNpZ25pbmctY2VydCIsInNpZ25hdHVyZVZlcnNpb24iOjF9.hrVRgjCwXVvE2OOSpDZ58hR+59aFNwYDyjQgKk3auukd7pcegmE2CzPCa0bJ0ZsRAcKkCTJrWo5iDzNhMBWRyaMOv5zWSrthlf7G128qvIlpMT0YNY+n/FaOHE73uLrS/g7swl3/qH/BGFG2Hu4RlL48eb3lLKqTt2xKHdCs6Cd4RMfJPYnzgvI4BNrFUKsjkcu+WD4OO2A27Pq1n50cMchmcaXadJhGrOqH5YmHdOCj5NSHzJYrsW0HPlpuAx/ECMeIZYDh6RMqaFM2DXzdKX9NmmyqzJ3o/0lkk/N97gfVRLW5hA29yeAwaCViZNCP8iC9aO0q9fQojoa7NQnAtw=="
         }
-      ],
-      signed: {
-        appId: "com.codex.lg-tv-control-hub",
-        created: "2026-03-26",
-        localizedAppNames: {
-          "": "LG TV Control Hub"
-        },
-        permissions: [
-          "LAUNCH",
-          "LAUNCH_WEBAPP",
-          "APP_TO_APP",
-          "CLOSE",
-          "TEST_OPEN",
-          "TEST_PROTECTED",
-          "CONTROL_AUDIO",
-          "CONTROL_DISPLAY",
-          "CONTROL_INPUT_JOYSTICK",
-          "CONTROL_INPUT_MEDIA_PLAYBACK",
-          "CONTROL_INPUT_MEDIA_RECORDING",
-          "CONTROL_INPUT_TV",
-          "CONTROL_MOUSE_AND_KEYBOARD",
-          "CONTROL_POWER",
-          "CONTROL_TV_SCREEN",
-          "CONTROL_TV_STANBY",
-          "CONTROL_FAVORITE_GROUP",
-          "CONTROL_USER_INFO",
-          "READ_APP_STATUS",
-          "READ_CURRENT_CHANNEL",
-          "READ_INPUT_DEVICE_LIST",
-          "READ_INSTALLED_APPS",
-          "READ_LGE_SDX",
-          "READ_NETWORK_STATE",
-          "READ_RUNNING_APPS",
-          "READ_TV_CHANNEL_LIST",
-          "READ_TV_CURRENT_TIME",
-          "READ_TV_PROGRAM_INFO",
-          "READ_TV_SCHEDULE",
-          "READ_UPDATE_INFO",
-          "UPDATE_FROM_REMOTE_APP",
-          "WRITE_NOTIFICATION_ALERT",
-          "WRITE_SETTINGS"
-        ],
-        serial: "codex-control-hub"
-      }
+      ]
     }
   }
 };
 
 const DEFAULT_TIMEOUT_MS = 8000;
+const REGISTER_TIMEOUT_MS = Number(process.env.REGISTER_TIMEOUT_MS || 60000);
 
 function wsUrl(host, secure = false) {
   return `${secure ? "wss" : "ws"}://${host}:${secure ? 3001 : 3000}`;
@@ -114,6 +124,7 @@ export class LgTvClient extends EventEmitter {
     this.pointerSocket = null;
     this.pointerReady = null;
     this.connecting = null;
+    this.registrationReady = null;
     this.status = "disconnected";
     this.lastError = null;
   }
@@ -192,13 +203,9 @@ export class LgTvClient extends EventEmitter {
       registerPayload.payload["client-key"] = this.clientKey;
     }
 
-    const registration = await this.#sendInternal(registerPayload, DEFAULT_TIMEOUT_MS);
-    if (registration?.payload?.["client-key"]) {
-      this.saveClientKey(registration.payload["client-key"]);
-    }
-    if (registration?.type === "response" && registration?.payload?.pairingType) {
-      throw new Error("TV requires pairing approval on screen");
-    }
+    this.registrationReady = this.#waitForRegistration();
+    this.socket.send(JSON.stringify(registerPayload));
+    await this.registrationReady;
 
     this.status = "connected";
     this.tv.connection = secure ? "wss" : "ws";
@@ -228,6 +235,7 @@ export class LgTvClient extends EventEmitter {
     this.status = "disconnected";
     this.pointerSocket?.close();
     this.pointerSocket = null;
+    this.registrationReady = null;
     this.emit("status", this.status);
   }
 
@@ -263,6 +271,57 @@ export class LgTvClient extends EventEmitter {
           reject(error);
         }
       });
+    });
+  }
+
+  #waitForRegistration(timeoutMs = REGISTER_TIMEOUT_MS) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error("Timed out waiting for TV registration approval"));
+      }, timeoutMs);
+
+      const cleanup = () => {
+        clearTimeout(timer);
+        this.off("message", handleMessage);
+        this.off("error", handleError);
+        this.off("status", handleStatus);
+      };
+
+      const handleMessage = (message) => {
+        if (message.type === "registered") {
+          cleanup();
+          resolve(message);
+          return;
+        }
+
+        if (message.type === "error") {
+          cleanup();
+          reject(new Error(message.error || "Registration failed"));
+          return;
+        }
+
+        if (message.type === "response" && message.payload?.pairingType) {
+          this.status = "pairing";
+          this.emit("status", this.status);
+        }
+      };
+
+      const handleError = (error) => {
+        cleanup();
+        reject(error);
+      };
+
+      const handleStatus = (status) => {
+        if (status === "disconnected") {
+          cleanup();
+          reject(new Error("TV disconnected before registration completed"));
+        }
+      };
+
+      this.on("message", handleMessage);
+      this.on("error", handleError);
+      this.on("status", handleStatus);
     });
   }
 
